@@ -1,0 +1,11 @@
+[package]
+name = "listen-cli"
+version = "0.1.0"
+authors = ["Collin McKinley <bravotic@aaathats3as.com>"]
+
+[dependencies]
+serde_json = "*"
+vlc-rs = "*"
+
+[dependencies.ws]
+features = ["ssl"]
