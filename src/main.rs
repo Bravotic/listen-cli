@@ -5,8 +5,11 @@ extern crate serde_json;
 use ws::*;
 use serde_json::Value;
 use std::thread;
+use std::str::FromStr;
+use std::env;
 
 use vlc::{Instance, Media, MediaPlayer};
+use vlc::MediaPlayerAudioEx;   
 
 const GRATI: ::ws::util::Token = ::ws::util::Token(1);
 
@@ -48,13 +51,18 @@ impl Handler for UpdateHandler{
   }
 }
 fn main() {
-
+   let args: Vec<_> = env::args().collect();
   println!("[SYS] Connecting...");
   let media_thread = thread::spawn( move || {
     let instance = Instance::new().unwrap();
     let stream = Media::new_location(&instance, "https://listen.moe/stream").unwrap();
     let player = MediaPlayer::new(&instance).unwrap();
     player.set_media(&stream);
+    if args.len() != 1{
+    if args[1].as_str() == "-v" || args[1].as_str() == "--volume" {
+    let n: i32 = FromStr::from_str(&args[2]).unwrap();
+    player.set_volume(n);
+    }}
     player.play().unwrap();
     thread::sleep(::std::time::Duration::from_secs(10000000000000000000));
   });
