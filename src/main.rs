@@ -1,17 +1,41 @@
 extern crate ws;
 extern crate vlc;
 extern crate serde_json;
+extern crate notify_rust;
 
 use ws::*;
 use serde_json::Value;
 use std::thread;
 use std::str::FromStr;
 use std::env;
-
+use notify_rust::Notification;
 use vlc::{Instance, Media, MediaPlayer};
 use vlc::MediaPlayerAudioEx;   
 
 const GRATI: ::ws::util::Token = ::ws::util::Token(1);
+
+fn checkArgs( mini: &str, full: &str ) -> bool{
+	let args: Vec<_> = env::args().collect();
+	let maxArgs = args.len();
+	let mut ret = 0;
+	if maxArgs == 1{
+		false
+	}
+	else{
+	for value in args.iter(){
+		if value == mini || value == full{
+			ret = 1;
+			break;
+		}
+		}
+		if ret == 1{
+			true
+		}
+		else{
+		false
+		}	
+	}
+}
 
 struct UpdateHandler{
   sender: Sender
@@ -38,6 +62,14 @@ impl Handler for UpdateHandler{
 
     else if message["op"] == 1{
       println!("[1] Currently playing: {} - {} ", message["d"]["song"]["title"].as_str().unwrap().to_string(), message["d"]["song"]["artists"][0]["name"].as_str().unwrap().to_string());
+
+if checkArgs("-n", "--notify"){
+
+Notification::new()
+    .summary("Listen-cli")
+    .body(format!("{} - {} ", message["d"]["song"]["title"].as_str().unwrap().to_string(), message["d"]["song"]["artists"][0]["name"].as_str().unwrap().to_string()).as_str())
+    .icon("play")
+    .show().unwrap();}
     }
     }
 
